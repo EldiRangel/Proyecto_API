@@ -3,9 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Trivia</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    
+    <div id="app">
+        <div id="config-screen" class="screen active">
+            <h1>Juego de Trivia</h1>
+            <form id="config-form">
+                <div class="form-group">
+                    <label for="player-name">Tu nombre:</label>
+                    <input type="text" id="player-name" minlength="2" maxlength="20" required>
+                    <span class="error-msg" id="name-error"></span>
+                </div>
 </body>
 </html>
