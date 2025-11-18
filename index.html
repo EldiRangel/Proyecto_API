@@ -33,9 +33,9 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="category">Categoría:</label>
+                    <label for="category">Tematica:</label>
                     <select id="category">
-                        <option value="">Todas las categorías</option>
+                        <option value="">Todas las Tematicas</option>
                     </select>
                 </div>
                 
@@ -43,6 +43,37 @@
             </form>
         </div>
 
-        
+        <div id="game-screen" class="screen">
+            <div class="game-header">
+                <span id="player-display"></span>
+                <span id="score-display">Puntos: 0</span>
+            </div>
+            
+            <div id="progress">Pregunta 1 de 10</div>
+            
+            <div id="timer-container">
+                <div id="timer-bar"></div>
+                <span id="time-left">20</span>
+            </div>
+            
+            <div id="question-container">
+                <h2 id="question-text"></h2>
+                <div id="answers-container"></div>
+            </div>
+            
+            <div id="loading" class="hidden">Cargando preguntas.</div>
+        </div>
+
+        <div id="results-screen" class="screen">
+            <h2>Resultados Finales</h2>
+            <div id="results-content"></div>
+            <div class="results-buttons">
+                <button id="play-again">Jugar Otra Vez</button>
+                <button id="new-config">Nueva Configuracion</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
