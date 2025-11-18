@@ -16,5 +16,33 @@
                     <input type="text" id="player-name" minlength="2" maxlength="20" required>
                     <span class="error-msg" id="name-error"></span>
                 </div>
+                    
+                <div class="form-group">
+                    <label for="question-count">Cantidad de preguntas:</label>
+                    <input type="number" id="question-count" min="5" max="20" value="10">
+                </div>
+                
+                <div class="form-group">
+                    <label for="difficulty">Dificultad:</label>
+                    <select id="difficulty">
+                        <option value="">Mixto</option>
+                        <option value="easy">Fácil</option>
+                        <option value="medium">Medio</option>
+                        <option value="hard">Difícil</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="category">Categoría:</label>
+                    <select id="category">
+                        <option value="">Todas las categorías</option>
+                    </select>
+                </div>
+                
+                <button type="submit" id="start-btn">Comenzar Juego</button>
+            </form>
+        </div>
+
+        
 </body>
 </html>
