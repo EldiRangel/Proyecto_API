@@ -1,0 +1,14 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', Arial, sans-serif;
+    background: url('https://wallpapercave.com/wp/wp2442599.jpg') no-repeat center center fixed;
+    background-size: cover;
+    min-height: 100vh;
+    padding: 20px;
+    color: #eee;
+}
