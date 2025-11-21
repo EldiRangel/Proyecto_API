@@ -27,16 +27,18 @@ class TriviaGame {
     }
     
     async loadCategories() {
-        
         this.categories = [
-            { id: "general_knowledge", name: "Conocimiento General" },
-            { id: "film_and_tv", name: "Cine y TV" },
-            { id: "music", name: "Musica" },
-            { id: "sport_and_leisure", name: "Deportes" },
-            { id: "geography", name: "Geografia" },
-            { id: "history", name: "Historia" },
-            { id: "science", name: "Ciencia" },
-            { id: "food_and_drink", name: "Comida y Bebida" }
+            { id: 9, name: "Conocimientos Generales" },
+            { id: 10, name: "Entretenimiento: Libros" },
+            { id: 11, name: "Entretenimiento: Cine" },
+            { id: 12, name: "Entretenimiento: Musica" },
+            { id: 15, name: "Videojuegos" },
+            { id: 17, name: "Ciencia y Naturaleza" },
+            { id: 18, name: "Computadoras" },
+            { id: 21, name: "Deportes" },
+            { id: 22, name: "Geografia" },
+            { id: 23, name: "Historia" },
+            { id: 27, name: "Animales" }
         ];
         
         this.populateCategorySelect();
@@ -110,38 +112,28 @@ class TriviaGame {
     }
     
     async fetchQuestions(amount, category, difficulty) {
-        
-        let url = `https://the-trivia-api.com/v2/questions?limit=${amount}`;
+        let url = `https://opentdb.com/api.php?amount=${amount}&type=multiple`;
         
         if (category) {
-            url += `&categories=${category}`;
+            url += `&category=${category}`;
         }
         
         if (difficulty) {
-            url += `&difficulties=${difficulty}`;
+            url += `&difficulty=${difficulty}`;
         }
         
         const response = await fetch(url);
-        
-        if (!response.ok) {
-            throw new Error('Error en la API');
-        }
-        
         const data = await response.json();
         
-        if (data && data.length > 0) {
-            this.questions = data.map(item => {
-                
-                const allAnswers = [...item.incorrectAnswers, item.correctAnswer];
-                this.shuffleArray(allAnswers);
-                
+        if (data.response_code === 0) {
+            this.questions = data.results.map(question => {
                 return {
-                    question: item.question.text,
-                    correct_answer: item.correctAnswer,
-                    incorrect_answers: item.incorrectAnswers,
-                    all_answers: allAnswers,
-                    category: item.category,
-                    difficulty: item.difficulty
+                    ...question,
+                    question: this.decodeHtml(question.question),
+                    correct_answer: this.decodeHtml(question.correct_answer),
+                    incorrect_answers: question.incorrect_answers.map(answer => 
+                        this.decodeHtml(answer)
+                    )
                 };
             });
         } else {
@@ -192,9 +184,12 @@ class TriviaGame {
         progress.textContent = `Pregunta ${this.currentQuestionIndex + 1} de ${this.questions.length}`;
         questionText.innerHTML = question.question;
         
+        const allAnswers = [...question.incorrect_answers, question.correct_answer];
+        this.shuffleArray(allAnswers);
+        
         answersContainer.innerHTML = '';
         
-        question.all_answers.forEach(answer => {
+        allAnswers.forEach(answer => {
             const button = document.createElement('button');
             button.className = 'answer-btn';
             button.innerHTML = answer;
@@ -306,6 +301,12 @@ class TriviaGame {
         
         this.showGameScreen();
         this.displayQuestion();
+    }
+    
+    decodeHtml(html) {
+        const txt = document.createElement('textarea');
+        txt.innerHTML = html;
+        return txt.value;
     }
     
     shuffleArray(array) {
