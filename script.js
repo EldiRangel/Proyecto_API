@@ -16,7 +16,6 @@ class TriviaGame {
         this.timeLeft = 20;
         this.totalTime = 0;
         this.startTime = 0;
-        
         this.categories = [];
         
         this.init();
@@ -28,27 +27,19 @@ class TriviaGame {
     }
     
     async loadCategories() {
-        try {
-            this.categories = [
-                { id: 31, name: "Anime & Manga" },
-                { id: 32, name: "Cartoons & Animacion" },
-                { id: 29, name: "Comics" },
-                { id: 14, name: "Television" },
-                { id: 15, name: "Videojuegos" }
-            ];
-            
-            this.populateCategorySelect();
-        } catch (error) {
-            console.error('Error loading Tematicas:', error);
-            this.categories = [
-                { id: 31, name: "Anime & Manga" },
-                { id: 32, name: "Cartoons & Animacion" },
-                { id: 29, name: "Comics" },
-                { id: 14, name: "Television" },
-                { id: 15, name: "Videojuegos" }
-            ];
-            this.populateCategorySelect();
-        }
+        
+        this.categories = [
+            { id: "general_knowledge", name: "Conocimiento General" },
+            { id: "film_and_tv", name: "Cine y TV" },
+            { id: "music", name: "Musica" },
+            { id: "sport_and_leisure", name: "Deportes" },
+            { id: "geography", name: "Geografia" },
+            { id: "history", name: "Historia" },
+            { id: "science", name: "Ciencia" },
+            { id: "food_and_drink", name: "Comida y Bebida" }
+        ];
+        
+        this.populateCategorySelect();
     }
     
     populateCategorySelect() {
@@ -115,26 +106,44 @@ class TriviaGame {
         } catch (error) {
             this.hideLoading();
             alert('Error al cargar las preguntas. Intenta nuevamente.');
-            console.error('Error fetching questions:', error);
         }
     }
     
     async fetchQuestions(amount, category, difficulty) {
-        let url = `https://opentdb.com/api.php?amount=${amount}&type=multiple`;
+        
+        let url = `https://the-trivia-api.com/v2/questions?limit=${amount}`;
         
         if (category) {
-            url += `&category=${category}`;
+            url += `&categories=${category}`;
         }
         
         if (difficulty) {
-            url += `&difficulty=${difficulty}`;
+            url += `&difficulties=${difficulty}`;
         }
         
         const response = await fetch(url);
+        
+        if (!response.ok) {
+            throw new Error('Error en la API');
+        }
+        
         const data = await response.json();
         
-        if (data.response_code === 0) {
-            this.questions = data.results;
+        if (data && data.length > 0) {
+            this.questions = data.map(item => {
+                
+                const allAnswers = [...item.incorrectAnswers, item.correctAnswer];
+                this.shuffleArray(allAnswers);
+                
+                return {
+                    question: item.question.text,
+                    correct_answer: item.correctAnswer,
+                    incorrect_answers: item.incorrectAnswers,
+                    all_answers: allAnswers,
+                    category: item.category,
+                    difficulty: item.difficulty
+                };
+            });
         } else {
             throw new Error('No se pudieron cargar las preguntas');
         }
@@ -181,16 +190,14 @@ class TriviaGame {
         const answersContainer = document.getElementById('answers-container');
         
         progress.textContent = `Pregunta ${this.currentQuestionIndex + 1} de ${this.questions.length}`;
-        questionText.innerHTML = this.decodeHtml(question.question);
-        
-        const allAnswers = [...question.incorrect_answers, question.correct_answer];
-        this.shuffleArray(allAnswers);
+        questionText.innerHTML = question.question;
         
         answersContainer.innerHTML = '';
-        allAnswers.forEach(answer => {
+        
+        question.all_answers.forEach(answer => {
             const button = document.createElement('button');
             button.className = 'answer-btn';
-            button.innerHTML = this.decodeHtml(answer);
+            button.innerHTML = answer;
             button.addEventListener('click', () => this.selectAnswer(answer, question.correct_answer));
             answersContainer.appendChild(button);
         });
@@ -220,17 +227,14 @@ class TriviaGame {
     updateTimerDisplay() {
         const timeLeftElement = document.getElementById('time-left');
         const timerBar = document.getElementById('timer-bar');
-        const timerContainer = document.getElementById('timer-container');
         
         timeLeftElement.textContent = this.timeLeft;
         timerBar.style.width = `${(this.timeLeft / 20) * 100}%`;
         
         if (this.timeLeft <= 5) {
             timerBar.style.background = '#ff5252';
-            timerContainer.classList.add('timer-warning');
         } else {
             timerBar.style.background = '#6a0dad';
-            timerContainer.classList.remove('timer-warning');
         }
     }
     
@@ -251,14 +255,11 @@ class TriviaGame {
         const answerButtons = document.querySelectorAll('.answer-btn');
         
         answerButtons.forEach(button => {
-            const buttonText = this.decodeHtml(button.innerHTML);
-            
-            if (buttonText === this.decodeHtml(correctAnswer)) {
+            if (button.innerHTML === correctAnswer) {
                 button.classList.add('correct');
-            } else if (buttonText === this.decodeHtml(selectedAnswer) && selectedAnswer !== correctAnswer) {
+            } else if (button.innerHTML === selectedAnswer && selectedAnswer !== correctAnswer) {
                 button.classList.add('incorrect');
             }
-            
             button.disabled = true;
         });
         
@@ -305,12 +306,6 @@ class TriviaGame {
         
         this.showGameScreen();
         this.displayQuestion();
-    }
-    
-    decodeHtml(html) {
-        const txt = document.createElement('textarea');
-        txt.innerHTML = html;
-        return txt.value;
     }
     
     shuffleArray(array) {
